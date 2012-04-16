@@ -1,13 +1,19 @@
-# topix
 
-FIXME: write description
+# Topix
+
+Topix is a simple website for doing even simpler Bayesian style text analysis on topics.
 
 ## Usage
 
-FIXME: write
+To start Topix just use Leiningen.
+
+```bash
+lein run
+```
+
+Then navigate to http://localhost:8080
 
 ## License
 
-Copyright (C) 2012 FIXME
-
 Distributed under the Eclipse Public License, the same as Clojure.
+
