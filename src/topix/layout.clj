@@ -29,10 +29,14 @@
 (defn show-page [topic]
   (layout topic
     (form/form-to {:class "well"} [:post "submit"]
+      (form/hidden-field "topic" topic)
       (form/label "body" "Enter some text...")
-      (form/text-area {} "body")
+      (form/text-area {} "text")
       [:label.checkbox 
         (form/check-box {} "hit")
         "Matches topic?"]
       (form/submit-button {:class "btn"} "Add Example"))))
+
+(defn submit-page [topic text hit]
+  "DONE")
 
