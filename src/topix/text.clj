@@ -9,6 +9,8 @@
   [text]
   (string/split text #"\s+"))
 
+;; Word scoring
+
 (defn word-score
   "Returns the current scoring data for the word in the topic"
   [topic word]
@@ -34,17 +36,32 @@
                    [topic word]
                    (partial score-data hit))))))
 
+;; Word relevance analysis
+
+(defn to-relevance
+  [score]
+  (if (nil? score)
+      0
+      (/ (:hits score)
+         (:total score))))
+
 ;; Public
 
-(defn analyse [topic text hit]
+(defn analyse 
   "Analyses a peice of text and updates the scores in our data"
+  [topic text hit]
   (let [words (split-words text)
         word-scores (map (partial score-word topic hit) words)]
     (doseq [word words]
       (update-word topic word hit))))
 
-(defn relevance [topic text]
-  )
+(defn relevance 
+  "Analyses the text and returns a relavance score between 0 (bad) and 1 (good)"
+  [topic text]
+  (let [word-scores (map (partial word-score topic) (split-words text))
+        relevance-scores (map to-relevance word-scores)]
+    (/ (reduce + relevance-scores)
+       (count relevance-scores))))
 
 (defn topics [text]
   )
