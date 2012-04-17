@@ -2,7 +2,7 @@
 (ns topix.text
   (:require [clojure.string :as string]))
 
-(def data (ref {}))
+(def ^:dynamic *data* (ref {}))
 
 (defn split-words
   "Splits a string into words to score"
@@ -14,7 +14,7 @@
 (defn word-score
   "Returns the current scoring data for the word in the topic"
   [topic word]
-  (get (get @data topic {})
+  (get (get (deref *data*) topic {})
        word nil))
 
 (defn score-data
@@ -30,7 +30,7 @@
   "Updates this words score for the topic in the data"
   [topic word hit]
   (dosync 
-    (alter data 
+    (alter *data*
       (fn [curr-data]
         (update-in curr-data 
                    [topic word]
