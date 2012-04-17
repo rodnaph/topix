@@ -50,10 +50,8 @@
 (defn analyse 
   "Analyses a peice of text and updates the scores in our data"
   [topic text hit]
-  (let [words (split-words text)
-        word-scores (map (partial score-word topic hit) words)]
-    (doseq [word words]
-      (update-word topic word hit))))
+  (doseq [word (split-words text)]
+    (update-word topic word hit)))
 
 (defn relevance 
   "Analyses the text and returns a relavance score between 0 (bad) and 1 (good)"

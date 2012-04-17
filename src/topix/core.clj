@@ -15,6 +15,10 @@
   (text/analyse topic text hit)
   (layout/submit-page topic text hit))
 
+(defpage "/score" {:keys [topic text]}
+  (layout/relevance-page
+    topic text (text/relevance topic text)))
+
 (defn -main [& args]
   (server/start 8080))
 
