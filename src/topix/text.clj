@@ -1,13 +1,15 @@
 
 (ns topix.text
-  (:require [clojure.string :as string]))
+  (:require [monger.collection :as db]
+            [clojure.string :as string]))
 
-(def ^:dynamic *data* (ref {}))
+(def ^{:doc "In memory data store, is currently the canonical place for data and uses STM to ensure
+             consistency before pushing to durable store" :dynamic true} *data* (ref {}))
 
 (defn split-words
-  "Splits a string into words to score"
-  [text]
-  (string/split text #"\s+"))
+  "Splits a string into words to score, optionally also in chunked groups"
+  ([text] (split-words text 1))
+  ([text size] (string/split text #"\s+")))
 
 ;; Word scoring
 
@@ -17,24 +19,43 @@
   (get (get (deref *data*) topic {})
        word nil))
 
+(defn inc-if
+  "Increment the value if the condition is true"
+  [condition value]
+  (if condition (inc value) value))
+
 (defn score-data
   "Updates the data to increase the total, and possibly the number
    of hits if this is a hit"
   [hit curr]
   (let [total (get curr :total 0)
-        hits (get curr :hits 0)]
-    {:total (inc total)
-     :hits (if hit (inc hits) hits)}))
+        hits (get curr :hits 0)
+        score {:total (inc total)
+               :hits (inc-if hit hits)}]
+    score))
+
+;; Updating memory and datastore
+
+(defn- update-data
+  "Updates our memory store with the new word score"
+  [topic word hit]
+  (dosync 
+    (alter *data*
+      #(update-in % [topic word]
+                  (partial score-data hit)))))
+
+(defn- update-mongo
+  "Updates the db with the new word score"
+  [topic word]
+  (let [match {:topic topic :word word}
+        doc (merge match (word-score topic word))]
+    (db/update "scores" match doc :upsert true)))
 
 (defn update-word
   "Updates this words score for the topic in the data"
   [topic word hit]
-  (dosync 
-    (alter *data*
-      (fn [curr-data]
-        (update-in curr-data 
-                   [topic word]
-                   (partial score-data hit))))))
+  (update-data topic word hit)
+  (update-mongo topic word))
 
 ;; Word relevance analysis
 
@@ -61,6 +82,12 @@
     (/ (reduce + relevance-scores)
        (count relevance-scores))))
 
-(defn topics [text]
-  )
+(defn reload-data
+  "Reloads data from the durable mongodb store"
+  []
+  (doseq [{:keys [topic word total hits]} (db/find-maps "scores")]
+    (dosync
+      (alter *data*
+        #(assoc-in % [topic word] 
+                   {:total total :hits hits})))))
 

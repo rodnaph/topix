@@ -4,7 +4,9 @@
         midje.sweet))
 
 (facts "about splitting text into word groups"
-  (split-words "foo bar baz bazzle") => ["foo" "bar" "baz" "bazzle"])
+;  (split-words "foo bar baz" 2) =>
+;       (contains ["foo" "baz" "bar" "foo bar" "bar baz"] :in-any-order)
+  (split-words "foo bar baz bazzle") => (contains ["foo" "bar" "baz" "bazzle"]))
 
 (facts "about scoring data"
   (score-data false {:total 1 :hits 1}) => {:total 2 :hits 1}
