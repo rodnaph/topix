@@ -8,6 +8,10 @@
 ;       (contains ["foo" "baz" "bar" "foo bar" "bar baz"] :in-any-order)
   (split-words "foo bar baz bazzle") => (contains ["foo" "bar" "baz" "bazzle"]))
 
+(facts "about removal of stopwords"
+  (count (split-words "this is the best")) => 1
+  (split-words "this is the best") => (contains ["best"]))
+
 (facts "about scoring data"
   (score-data false {:total 1 :hits 1}) => {:total 2 :hits 1}
   (score-data true {:total 1 :hits 1}) => {:total 2 :hits 2}

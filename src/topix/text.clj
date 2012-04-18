@@ -6,10 +6,21 @@
 (def ^{:doc "In memory data store, is currently the canonical place for data and uses STM to ensure
              consistency before pushing to durable store" :dynamic true} *data* (ref {}))
 
+(def ^{:doc "A list of stopwords that are removed from text"} stopwords #{
+  "this" "is" "the" "a"
+})
+
+(defn- is-stopword
+  [word]
+  (not
+    (some #{word} stopwords)))
+
 (defn split-words
   "Splits a string into words to score, optionally also in chunked groups"
   ([text] (split-words text 1))
-  ([text size] (string/split text #"\s+")))
+  ([text size] 
+   (->> (string/split text #"\s+")
+        (filter is-stopword))))
 
 ;; Word scoring
 
