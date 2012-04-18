@@ -36,7 +36,7 @@
 
 ;; Updating memory and datastore
 
-(defn- update-data
+(defn update-data
   "Updates our memory store with the new word score"
   [topic word hit]
   (dosync 

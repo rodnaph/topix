@@ -14,10 +14,10 @@
   (score-data true nil) => {:total 1 :hits 1}
   (score-data false nil) => {:total 1 :hits 0})
 
-(facts "about updating words"
+(facts "about updating word data"
   (binding [*data* (ref {})]
-    (update-word "foo" "bar" true) => {"foo" {"bar" {:total 1 :hits 1}}}
-    (update-word "foo" "bar" false) => {"foo" {"bar" {:total 2 :hits 1}}}
+    (update-data "foo" "bar" true) => {"foo" {"bar" {:total 1 :hits 1}}}
+    (update-data "foo" "bar" false) => {"foo" {"bar" {:total 2 :hits 1}}}
   ))
 
 (facts "about calculating relevance info"
