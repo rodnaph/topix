@@ -10,13 +10,6 @@
 (defpage "/" [] 
   (layout/index-page (data/topics)))
 
-(defpage "/show" {:keys [topic]}
-  (layout/show-page topic))
-
-(defpage [:post "/submit"] {:keys [topic text hit]}
-  (data/analyse topic text hit)
-  (layout/submit-page topic text hit))
-
 (defpage "/score" {:keys [topic text]}
   (layout/relevance-page
     topic text (data/relevance topic text)))

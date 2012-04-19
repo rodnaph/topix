@@ -4,7 +4,8 @@
 
 (def ^{:doc "A list of stopwords that are removed from text"} stopwords #{
   "this" "is" "the" "a" "to" "not" "what" "in" "by" "on" "come" "from"
-  "has" "who" "when" "an" "if"
+  "has" "who" "when" "an" "if" "at" "of" "her" "him" "and" "into" "new"
+  "like" "can" "that" "much" "its" "about" "their" "our"
 })
 
 (defn- not-stopword
