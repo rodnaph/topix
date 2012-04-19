@@ -82,6 +82,11 @@
     (/ (reduce + word-scores)
        (count word-scores))))
 
+(defn topics
+  "Returns all current topics (fetched from mongo)"
+  []
+  (db/distinct "scores" "topic"))
+
 (defn reload
   "Reloads data from the durable mongodb store"
   []

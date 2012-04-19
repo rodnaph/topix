@@ -8,7 +8,7 @@
 ;; Routes
 
 (defpage "/" [] 
-  (layout/index-page))
+  (layout/index-page (data/topics)))
 
 (defpage "/show" {:keys [topic]}
   (layout/show-page topic))

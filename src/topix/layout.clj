@@ -15,7 +15,7 @@
         [:div.container
           [:div.nav-collapse
             [:ul.nav
-              [:li [:a {:href "/"} "HOME"]]]]]]]
+              [:li.active [:a {:href "/"} "HOME"]]]]]]]
     [:div.container.main-container
       [:div.span12 
         [:h1 title]
@@ -42,12 +42,17 @@
 
 ;; Public
 
-(defn index-page []
+(defn index-page [topics]
   (layout "Welcome to Topix!"
-    (form/form-to {:class "well"} [:get "show"]
-      (form/label "topic" "Choose a topic...")
-      (form/text-field {} "topic")
-      (form/submit-button {:class "btn"} "Show Topic"))))
+    (form/form-to {:class "well"} [:get "score"]
+      [:fieldset
+        (form/label "text" "And enter some text")
+        (form/text-area {} "text")]
+      [:fieldset
+        (form/label "topic" "Choose a topic to match for relevance")
+        [:select {:name "topic"}
+          (form/select-options topics)]]
+      (form/submit-button {:class "btn btn-primary"} "Analyse Text!"))))
 
 (defn show-page [topic]
   (layout topic
