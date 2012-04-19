@@ -8,13 +8,13 @@
 
 ;; Word scoring
 
-(defn word-score
+(defn- word-score
   "Returns the current scoring of the word for the specified topic"
   [topic word]
   (get (get (deref *data*) word {})
        topic 0))
 
-(defn score-data
+(defn- score-data
   "Updates the data to increase the total, and possibly the number
    of hits if this is a hit"
   [hit curr]
@@ -22,7 +22,7 @@
 
 ;; Updating memory and datastore
 
-(defn update-data
+(defn- update-data
   "Updates our memory store with the new word score"
   [topic word hit]
   (dosync 
@@ -37,7 +37,7 @@
         doc (merge match {:score (word-score topic word)})]
     (db/update "scores" match doc :upsert true)))
 
-(defn update-word
+(defn- update-word
   "Updates this words score for the topic in the data"
   [topic word hit]
   (update-data topic word hit)
@@ -45,25 +45,29 @@
 
 ;; Word relevance analysis
 
-(defn to-relevance
-  [score]
-  (if (nil? score)
-      0
-      (/ (:hits score)
-         (:total score))))
-
-(defn map-total
+(defn- map-total
   "Calculates totals of integer map values"
   [acc [_ x]] 
   (+ acc x))
 
-(defn relevance-score
+(defn- relevance-score
   [topic word]
   (let [scores (get @*data* word {})
         total (reduce map-total 0 scores)
         topic-score (get scores topic 1)]
     (if (= 0 total) 0
         (/ topic-score total))))
+
+;; Topic Analysis
+
+(defn- to-topics
+  [acc word]
+  (let [topics (get @*data* word {})]
+    (merge acc topics)))
+
+(defn- by-value
+  [[_ a] [_ b]]
+  (> a b))
 
 ;; Public
 
@@ -82,7 +86,14 @@
     (/ (reduce + word-scores)
        (count word-scores))))
 
-(defn topics
+(defn relevant-topics
+  [text]
+  (->> (text/explode text)
+       (reduce to-topics {}) 
+       (sort by-value)
+       (keys)))
+
+(defn all-topics
   "Returns all current topics (fetched from mongo)"
   []
   (db/distinct "scores" "topic"))

@@ -37,7 +37,7 @@
           (form/select-options topics)]]
       (form/submit-button {:class "btn btn-primary"} "Analyse Text!"))))
 
-(defn relevance-page [topic text score]
+(defn relevance-page [topic text score relevant-topics]
   (let [percentage (double (* 100 score))]
     (layout (str "Relevance to " topic)
       [:p.text-to-score (str "\"" text "\"")]
@@ -45,5 +45,13 @@
         [:div.score {:style (str "width:" percentage "%")}]
         [:span percentage]
         [:div.clearer]]
-      [:a.btn.btn-primary.back {:href "/"} "Back"])))
+      [:ul.topics
+        (for [t (filter #(not (= % topic)) relevant-topics)]
+          [:li
+            (form/form-to {} [:get "score"]
+              (form/hidden-field "topic" t)
+              (form/hidden-field "text" text)
+              (form/submit-button {:class "btn btn-info"} t))])]
+      [:div.back
+        [:a.btn.btn-primary {:href "/"} "Back"]])))
 

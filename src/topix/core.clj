@@ -8,11 +8,13 @@
 ;; Routes
 
 (defpage "/" [] 
-  (layout/index-page (data/topics)))
+  (layout/index-page (data/all-topics)))
 
 (defpage "/score" {:keys [topic text]}
   (layout/relevance-page
-    topic text (data/relevance topic text)))
+    topic text 
+    (data/relevance topic text)
+    (data/relevant-topics text)))
 
 ;; Main
 
