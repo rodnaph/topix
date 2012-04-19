@@ -6,10 +6,14 @@
   "this" "is" "the" "a" "to" "not" "what" "in" "by"
 })
 
-(defn- is-stopword
+(defn- not-stopword
   [word]
   (not
     (some #{word} stopwords)))
+
+(defn- not-url
+  [url]
+  true)
 
 ;; Public
 
@@ -18,5 +22,6 @@
   ([text] (explode text 1))
   ([text size] 
    (->> (string/split (.toLowerCase text) #"\s+")
-        (filter is-stopword))))
+        (filter not-url)
+        (filter not-stopword))))
 
