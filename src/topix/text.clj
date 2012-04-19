@@ -13,7 +13,8 @@
 
 (defn- not-url
   [url]
-  true)
+  (not
+    (re-matches #"http://t.co/\w+" url)))
 
 ;; Public
 
