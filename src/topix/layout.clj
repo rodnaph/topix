@@ -10,7 +10,13 @@
     (page/include-css "/css/bootstrap.min.css")
     (page/include-css "/css/default.css")]
   [:body
-    [:div.container
+    [:div.navbar.navbar-fixed-top
+      [:div.navbar-inner
+        [:div.container
+          [:div.nav-collapse
+            [:ul.nav
+              [:li [:a {:href "/"} "HOME"]]]]]]]
+    [:div.container.main-container
       [:div.span12 
         [:h1 title]
         [:div.content body]
@@ -53,5 +59,11 @@
   "DONE")
 
 (defn relevance-page [topic text score]
-  (str "Scored: " score))
+  (let [percentage (double (* 100 score))]
+    (layout (str "Relevance to " topic)
+      [:p.text-to-score text]
+      [:div.score-wrap
+        [:div.score {:style (str "width:" percentage "%")}]
+        [:span percentage]
+        [:div.clearer]])))
 

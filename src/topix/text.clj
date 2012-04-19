@@ -3,7 +3,8 @@
   (:require [clojure.string :as string]))
 
 (def ^{:doc "A list of stopwords that are removed from text"} stopwords #{
-  "this" "is" "the" "a" "to" "not" "what" "in" "by"
+  "this" "is" "the" "a" "to" "not" "what" "in" "by" "on" "come" "from"
+  "has" "who" "when" "an" "if"
 })
 
 (defn- not-stopword

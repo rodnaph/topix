@@ -1,0 +1,49 @@
+
+.main-container {
+    margin-top: 65px;
+    padding-top: 20px;
+    border: 1px #eee solid;
+    box-shadow: 5px 5px 5px #eee;
+}
+
+.text-to-score {
+    padding: 20px;
+    font-style: italic;
+}
+
+.score-wrap {
+    width: 700px;
+    background-color: #eee;
+    border: 4px #aaa solid;
+    border-radius: 10px;
+}
+
+.score-wrap span,
+.score {
+    height: 40px;
+    line-height: 40px;
+    float: left;
+}
+
+.score {
+    background-color: #9d9;
+}
+
+.score-wrap span {
+    padding-left: 15px;
+    font-size: 1.8em;
+    color: #000;
+    font-weight: bold;
+}
+
+.clearer {
+    clear: both;
+}
+
+.footer {
+    text-align: center;
+    padding: 30px;
+    font-size: 2em;
+    color: #eee;
+}
+

@@ -9,25 +9,16 @@
 ;; Word scoring
 
 (defn word-score
-  "Returns the current scoring data for the word in the topic"
+  "Returns the current scoring of the word for the specified topic"
   [topic word]
-  (get (get (deref *data*) topic {})
-       word nil))
-
-(defn inc-if
-  "Increment the value if the condition is true"
-  [condition value]
-  (if condition (inc value) value))
+  (get (get (deref *data*) word {})
+       topic 0))
 
 (defn score-data
   "Updates the data to increase the total, and possibly the number
    of hits if this is a hit"
   [hit curr]
-  (let [total (get curr :total 0)
-        hits (get curr :hits 0)
-        score {:total (inc total)
-               :hits (inc-if hit hits)}]
-    score))
+  (if curr (inc curr) 1))
 
 ;; Updating memory and datastore
 
@@ -36,14 +27,14 @@
   [topic word hit]
   (dosync 
     (alter *data*
-      #(update-in % [topic word]
+      #(update-in % [word topic]
                   (partial score-data hit)))))
 
 (defn- update-mongo
   "Updates the db with the new word score"
   [topic word]
   (let [match {:topic topic :word word}
-        doc (merge match (word-score topic word))]
+        doc (merge match {:score (word-score topic word)})]
     (db/update "scores" match doc :upsert true)))
 
 (defn update-word
@@ -61,6 +52,19 @@
       (/ (:hits score)
          (:total score))))
 
+(defn map-total
+  "Calculates totals of integer map values"
+  [acc [_ x]] 
+  (+ acc x))
+
+(defn relevance-score
+  [topic word]
+  (let [scores (get @*data* word {})
+        total (reduce map-total 0 scores)
+        topic-score (get scores topic 1)]
+    (if (= 0 total) 0
+        (/ topic-score total))))
+
 ;; Public
 
 (defn analyse 
@@ -72,17 +76,17 @@
 (defn relevance 
   "Analyses the text and returns a relavance score between 0 (bad) and 1 (good)"
   [topic text]
-  (let [word-scores (map (partial word-score topic) (text/explode text))
-        relevance-scores (map to-relevance word-scores)]
-    (/ (reduce + relevance-scores)
-       (count relevance-scores))))
+  (let [words (text/explode text)
+        word-scores (map (partial relevance-score topic) words)]
+    (prn "Scores: " (interleave words word-scores))
+    (/ (reduce + word-scores)
+       (count word-scores))))
 
 (defn reload
   "Reloads data from the durable mongodb store"
   []
-  (doseq [{:keys [topic word total hits]} (db/find-maps "scores")]
+  (doseq [{:keys [topic word score]} (db/find-maps "scores")]
     (dosync
       (alter *data*
-        #(assoc-in % [topic word] 
-                   {:total total :hits hits})))))
+        #(assoc-in % [word topic] score)))))
 
