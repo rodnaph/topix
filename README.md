@@ -38,6 +38,18 @@ topix.core=> (trainer/run)
 MongoDB will then be loaded with the training data, so re/start the server and it'll get
 loaded available for use.
 
+### Example Results
+
+Topix is very early in development, and I'm just starting to play with tweaking the matching,
+but early results still show favour over the correct categories.
+
+![Science Topic](http://pu-gh.com/topix/science.png)
+
+![Fashion Topic](http://pu-gh.com/topix/fashion.png)
+
+Hopefully with more tweaking like multi-word matching, root stemming, and more training results
+will improve further.
+
 ## License
 
 Distributed under the Eclipse Public License, the same as Clojure.
