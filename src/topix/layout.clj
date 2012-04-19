@@ -27,6 +27,12 @@
 
 (defn index-page [topics]
   (layout "Welcome to Topix!"
+    [:div.intro
+      [:p "Topix is a very simple Clojure web application for doing Bayesian
+           analysis on text, and indicating how relevant it is to certain topics
+           that it has been trained with."]
+      [:p "As well as trying to match text to a given topic, it will also return
+           results for other similar topics"]]
     (form/form-to {} [:get "score"]
       [:fieldset
         (form/label "text" "And enter some text")
