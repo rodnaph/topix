@@ -68,8 +68,10 @@
   [[_ a] [_ b]]
   (> a b))
 
+(declare relevance)
+
 (defn- to-relevance
-  [[topic _]]
+  [text [topic _]]
   (vector topic 
           (relevance topic text)))
 
@@ -94,7 +96,7 @@
   [text]
   (->> (text/explode text)
        (reduce to-topics {}) 
-       (map to-relevance)
+       (map (partial to-relevance text))
        (sort by-value)))
 
 (defn all-topics
