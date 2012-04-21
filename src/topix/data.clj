@@ -68,6 +68,11 @@
   [[_ a] [_ b]]
   (> a b))
 
+(defn- to-relevance
+  [[topic _]]
+  (vector topic 
+          (relevance topic text)))
+
 ;; Public
 
 (defn analyse 
@@ -81,7 +86,7 @@
   [topic text]
   (let [words (text/explode text)
         word-scores (map (partial relevance-score topic) words)]
-    (prn "Scores: " (interleave words word-scores))
+    (prn "Scores for " topic " : " (interleave words word-scores))
     (/ (reduce + word-scores)
        (count word-scores))))
 
@@ -89,8 +94,8 @@
   [text]
   (->> (text/explode text)
        (reduce to-topics {}) 
-       (sort by-value)
-       (keys)))
+       (map to-relevance)
+       (sort by-value)))
 
 (defn all-topics
   "Returns all current topics (fetched from mongo)"

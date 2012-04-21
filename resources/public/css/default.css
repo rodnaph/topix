@@ -17,6 +17,17 @@
     line-height: 1.4em;
 }
 
+form {
+    margin: 0 auto;
+    margin-bottom: 20px;
+    width: 700px;
+}
+
+textarea {
+    width: 600px;
+    height: 200px;
+}
+
 label {
     font-weight: bold;
 }
@@ -27,10 +38,11 @@ label {
 }
 
 .score-wrap {
-    width: 700px;
+    width: 620px;
     background-color: #eee;
     border: 4px #aaa solid;
     border-radius: 10px;
+    float: left;
 }
 
 .score-wrap span,
@@ -44,6 +56,12 @@ label {
     background-color: #9d9;
 }
 
+.topics .name {
+    float: left;
+    width: 250px;
+}
+
+.topics .name,
 .score-wrap span {
     padding-left: 15px;
     font-size: 1.8em;
@@ -64,6 +82,7 @@ label {
 .topics li {
     float: left;
     margin-right: 6px;
+    margin-bottom: 20px;
 }
 
 .back {

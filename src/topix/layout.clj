@@ -31,33 +31,29 @@
       [:p "Topix is a very simple Clojure web application for doing Bayesian
            analysis on text, and indicating how relevant it is to certain topics
            that it has been trained with."]
-      [:p "As well as trying to match text to a given topic, it will also return
-           results for other similar topics"]]
-    (form/form-to {} [:get "score"]
+      [:p "To give it a try just paste some text into the field below and click submit."]]
+    (form/form-to {} [:post "topics"]
       [:fieldset
-        (form/label "text" "And enter some text")
+        (form/label "text" "Enter some text")
         (form/text-area {} "text")]
-      [:fieldset
-        (form/label "topic" "Choose a topic to match for relevance")
-        [:select {:name "topic"}
-          (form/select-options topics)]]
-      (form/submit-button {:class "btn btn-primary"} "Analyse Text!"))))
-
-(defn relevance-page [topic text score relevant-topics]
-  (let [percentage (double (* 100 score))]
-    (layout (str "Relevance to " topic)
-      [:p.text-to-score (str "\"" text "\"")]
-      [:div.score-wrap
-        [:div.score {:style (str "width:" percentage "%")}]
-        [:span percentage]
-        [:div.clearer]]
+      (form/submit-button {:class "btn btn-primary"} "Analyse Text!"))
+    [:h2 "Topics..."
       [:ul.topics
-        (for [t (filter #(not (= % topic)) relevant-topics)]
+        (for [topic topics]
+          [:li topic])]]))
+
+(defn relevance-page [text relevant-topics]
+  (layout "Matched Topics"
+    [:p.text-to-score (str "\"" text "\"")]
+    [:ul.topics
+      (for [[topic score] relevant-topics]
+        (let [percentage (double (* 100 score))]
           [:li
-            (form/form-to {} [:get "score"]
-              (form/hidden-field "topic" t)
-              (form/hidden-field "text" text)
-              (form/submit-button {:class "btn btn-info"} t))])]
+            [:span.name topic]
+            [:div.score-wrap
+              [:div.score {:style (str "width:" percentage "%")}]
+              [:span percentage]
+              [:div.clearer]]]))]
       [:div.back
-        [:a.btn.btn-primary {:href "/"} "Back"]])))
+        [:a.btn.btn-primary {:href "/"} "Back"]]))
 

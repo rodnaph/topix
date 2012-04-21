@@ -1,3 +1,0 @@
-
-rating = ( (avg_num_votes * avg_rating) + (this_num_votes * this_rating) ) / (avg_num_votes + this_num_votes)
-

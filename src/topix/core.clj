@@ -10,10 +10,9 @@
 (defpage "/" [] 
   (layout/index-page (data/all-topics)))
 
-(defpage "/score" {:keys [topic text]}
+(defpage [:post "/topics"] {:keys [text]}
   (layout/relevance-page
-    topic text 
-    (data/relevance topic text)
+    text 
     (data/relevant-topics text)))
 
 ;; Main
