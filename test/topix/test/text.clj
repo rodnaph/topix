@@ -4,13 +4,13 @@
         midje.sweet))
 
 (facts "about splitting text into word groups"
-  (explode "foo bar baz" 2) =>
+  (explode "foo bar baz") =>
        (contains ["foo" "baz" "bar" "foo bar" "bar baz"] :in-any-order)
   (explode "foo bar baz bazzle") => (contains ["foo" "bar" "baz" "bazzle"]))
 
 (facts "about removal of stopwords"
-  (count (explode "this is the best")) => 1
-  (explode "this is the best") => (contains ["best"]))
+  (count (explode "this is the bazzle")) => 1
+  (explode "this is the bazzle") => (contains ["bazzle"]))
 
 (facts "about converting the case of words to store"
   (explode "baZZle") => ["bazzle"])
