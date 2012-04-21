@@ -20,27 +20,14 @@
   [curr]
   (if curr (inc curr) 1))
 
-;; Updating memory and datastore
-
-(defn- update-data
-  "Updates our memory store with the new word score"
-  [topic word]
-  (dosync 
-    (alter *data*
-      #(update-in % [word topic] score-data))))
-
-(defn- update-mongo
-  "Updates the db with the new word score"
-  [topic word]
-  (let [match {:topic topic :word word}
-        doc (merge match {:score (word-score topic word)})]
-    (db/update "scores" match doc :upsert true)))
+;; Updating memory 
 
 (defn- update-word
   "Updates this words score for the topic in the data"
   [topic word]
-  (update-data topic word)
-  (update-mongo topic word))
+  (dosync 
+    (alter *data*
+      #(update-in % [word topic] score-data))))
 
 ;; Word relevance analysis
 
@@ -74,6 +61,20 @@
   [text [topic _]]
   (vector topic 
           (relevance topic text)))
+
+;; Mongo DB
+
+(defn- to-record
+  "Converts an individual topic score to a mongo db record"
+  [word [topic score]]
+  { :topic topic
+    :word word 
+    :score score })
+
+(defn- to-records
+  "Converts in memory data to mongo db records"
+  [[word topics]]
+  (map (partial to-record word) topics))
 
 ;; Public
 
@@ -116,4 +117,11 @@
   "Resets all scores in mongodb"
   []
   (db/remove "scores"))
+
+(defn commit
+  "Commit in-memory data to mongodb, replacing it"
+  []
+  (reset)
+  (doseq [[record] (map to-records @*data*)]
+    (db/insert "scores" record)))
 
