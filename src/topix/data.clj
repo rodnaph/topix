@@ -17,18 +17,17 @@
 (defn- score-data
   "Updates the data to increase the total, and possibly the number
    of hits if this is a hit"
-  [hit curr]
+  [curr]
   (if curr (inc curr) 1))
 
 ;; Updating memory and datastore
 
 (defn- update-data
   "Updates our memory store with the new word score"
-  [topic word hit]
+  [topic word]
   (dosync 
     (alter *data*
-      #(update-in % [word topic]
-                  (partial score-data hit)))))
+      #(update-in % [word topic] score-data))))
 
 (defn- update-mongo
   "Updates the db with the new word score"
@@ -39,8 +38,8 @@
 
 (defn- update-word
   "Updates this words score for the topic in the data"
-  [topic word hit]
-  (update-data topic word hit)
+  [topic word]
+  (update-data topic word)
   (update-mongo topic word))
 
 ;; Word relevance analysis
@@ -73,9 +72,9 @@
 
 (defn analyse 
   "Analyses a peice of text and updates the scores in our data"
-  [topic text hit]
+  [topic text]
   (doseq [word (text/explode text)]
-    (update-word topic word hit)))
+    (update-word topic word)))
 
 (defn relevance 
   "Analyses the text and returns a relavance score between 0 (bad) and 1 (good)"
