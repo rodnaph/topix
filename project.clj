@@ -1,5 +1,5 @@
 
-(defproject topix "0.0.4"
+(defproject topix "0.0.5"
   :description "Simple baysian analysis"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [noir "1.3.0-beta2"]

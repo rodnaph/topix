@@ -129,16 +129,22 @@
   (string/replace word
                   #"[^A-Za-z0-9]"
                   ""))
+
+(defn- to-groups
+  [words]
+  (concat words (->> (interleave words (rest words))
+                     (partition 2)
+                     (map #(str (first %) " " (second %))))))
+
 ;; Public
 
 (defn explode
   "Splits a string into words to score, optionally also in chunked groups"
-  ([text] (explode text 1))
-  ([text size] 
-   (let [words (->> (string/split (.toLowerCase text) #"\s+")
-                    (filter not-url)
-                    (map to-allowed-chars)
-                    (filter #(seq %))
-                    (filter not-stopword))]
-     words)))
+  [text]
+  (let [words (->> (string/split (.toLowerCase text) #"\s+")
+                   (filter not-url)
+                   (map to-allowed-chars)
+                   (filter #(seq %))
+                   (filter not-stopword))]
+    (to-groups words)))
 
