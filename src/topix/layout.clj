@@ -15,7 +15,8 @@
         [:div.container
           [:div.nav-collapse
             [:ul.nav
-              [:li.active [:a {:href "/"} "HOME"]]]]]]]
+              [:li.active [:a {:href "/"} "Home"]]
+              [:li [:a {:href "/reload" :title "Reload Topix Data"} "Reload Data"]]]]]]]
     [:div.container.main-container
       [:div.span12 
         [:h1 title]

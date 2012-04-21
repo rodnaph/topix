@@ -3,7 +3,8 @@
   (:use noir.core)
   (:require [topix.init :as init]
             [topix.data :as data]
-            [topix.layout :as layout]))
+            [topix.layout :as layout]
+            [noir.response :as res]))
 
 ;; Routes
 
@@ -14,6 +15,10 @@
   (layout/relevance-page
     text 
     (data/relevant-topics text)))
+
+(defpage "/reload" []
+  (data/reload)
+  (res/redirect "/"))
 
 ;; Main
 
