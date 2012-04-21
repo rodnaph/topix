@@ -105,3 +105,8 @@
       (alter *data*
         #(assoc-in % [word topic] score)))))
 
+(defn reset
+  "Resets all scores in mongodb"
+  []
+  (db/remove "scores"))
+
