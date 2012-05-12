@@ -1,48 +1,10 @@
 
 (ns topix.data
-  (:require [topix.text :as text]
-            [monger.collection :as db]))
+  (:require [monger.collection :as db]
+            [bayes.core :as bayes]))
 
 (def ^{:doc "In memory data store, is currently the canonical place for data and uses STM to ensure
              consistency before pushing to durable store" :dynamic true} *data* (ref {}))
-
-;; Word scoring
-
-(defn- word-score
-  "Returns the current scoring of the word for the specified topic"
-  [topic word]
-  (get (get (deref *data*) word {})
-       topic 0))
-
-(defn- score-data
-  "Updates the data to increase the total, and possibly the number
-   of hits if this is a hit"
-  [curr]
-  (if curr (inc curr) 1))
-
-;; Updating memory 
-
-(defn- update-word
-  "Updates this words score for the topic in the data"
-  [topic word]
-  (dosync 
-    (alter *data*
-      #(update-in % [word topic] score-data))))
-
-;; Word relevance analysis
-
-(defn- map-total
-  "Calculates totals of integer map values"
-  [acc [_ x]] 
-  (+ acc x))
-
-(defn- relevance-score
-  [topic word]
-  (let [scores (get @*data* word {})
-        total (reduce map-total 0 scores)
-        topic-score (get scores topic 1)]
-    (if (= 0 total) 0
-        (/ topic-score total))))
 
 ;; Topic Analysis
 
@@ -55,47 +17,42 @@
   [[_ a] [_ b]]
   (> a b))
 
-(declare relevance)
-
 (defn- to-relevance
   [text [topic _]]
   (vector topic 
-          (relevance topic text)))
+          (bayes/probability topic text)))
 
 ;; Mongo DB
 
-(defn- to-record
+(defn- to-score-record
   "Converts an individual topic score to a mongo db record"
   [word [topic score]]
   { :topic topic
     :word word 
     :score score })
 
-(defn- to-records
+(defn- to-score-records
   "Converts in memory data to mongo db records"
   [[word topics]]
-  (map (partial to-record word) topics))
+  (map (partial to-score-record word) topics))
 
 ;; Public
 
 (defn analyse 
   "Analyses a peice of text and updates the scores in our data"
   [topic text]
-  (doseq [word (text/explode text)]
-    (update-word topic word)))
+  (dosync
+    (ref-set *data*
+      (bayes/train topic text @*data*))))
 
 (defn relevance 
   "Analyses the text and returns a relavance score between 0 (bad) and 1 (good)"
   [topic text]
-  (let [words (text/explode text)
-        word-scores (map (partial relevance-score topic) words)]
-    (prn "Scores for " topic " : " (interleave words word-scores))
-    (/ (reduce + word-scores)
-       (count word-scores))))
+  (bayes/probability topic text @*data*))
 
 (defn relevant-topics
   [text]
-  (->> (text/explode text)
+  (->> (bayes/features text)
        (reduce to-topics {}) 
        (map (partial to-relevance text))
        (sort by-value)))
@@ -103,25 +60,33 @@
 (defn all-topics
   "Returns all current topics (fetched from mongo)"
   []
-  (db/distinct "scores" "topic"))
-
-(defn reload
-  "Reloads data from the durable mongodb store"
-  []
-  (doseq [{:keys [topic word score]} (db/find-maps "scores")]
-    (dosync
-      (alter *data*
-        #(assoc-in % [word topic] score)))))
+  (db/distinct "features" "topic"))
 
 (defn reset
   "Resets all scores in mongodb"
   []
-  (db/remove "scores"))
+  (db/remove "categories")
+  (db/remove "features"))
+
+(defn reload
+  "Reloads data from the durable mongodb store"
+  []
+  (dosync
+    (doseq [{:keys [topic word score]} (db/find-maps "features")]
+      (alter *data*
+        #(assoc-in % [:features word topic] score)))
+    (doseq [{:keys [category score]} (db/find-maps "categories")]
+      (alter *data*
+        #(assoc-in % [:categories category] score)))))
 
 (defn commit
   "Commit in-memory data to mongodb, replacing it"
   []
   (reset)
-  (doseq [[record] (map to-records @*data*)]
-    (db/insert "scores" record)))
+  (doseq [records (map to-score-records (:features @*data*))]
+    (doseq [record records]
+      (db/insert "features" record)))
+  (doseq [[category score] (:categories @*data*)]
+    (db/insert "categories" {:category category
+                             :score score})))
 

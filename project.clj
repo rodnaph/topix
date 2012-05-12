@@ -1,11 +1,12 @@
 
-(defproject topix "0.0.6"
+(defproject topix "0.0.7"
   :description "Simple baysian analysis"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [noir "1.3.0-beta2"]
                  [com.novemberain/monger "1.0.0-beta4"]
                  [cheshire "4.0.0"]
-                 [getweets "1.0.0"]]
+                 [getweets "1.0.0"]
+                 [bayes "0.0.1"]]
   :dev-dependencies [[midje "1.3.2-alpha1"]
                      [lein-midje "1.0.9"]
                      [lein-noir "1.2.1"]

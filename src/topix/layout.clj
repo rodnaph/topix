@@ -48,12 +48,12 @@
     [:p.text-to-score (str "\"" text "\"")]
     [:ul.topics
       (for [[topic score] relevant-topics]
-        (let [percentage (double (* 100 score))]
+        (let [percentage (int (* 100 score))]
           [:li
             [:span.name topic]
             [:div.score-wrap
               [:div.score {:style (str "width:" percentage "%")}]
-              [:span percentage]
+              [:span percentage "%"]
               [:div.clearer]]]))]
       [:div.back
         [:a.btn.btn-primary {:href "/"} "Back"]]))
