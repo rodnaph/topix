@@ -18,9 +18,9 @@
   (> a b))
 
 (defn- to-relevance
-  [text [topic _]]
+  [text topic]
   (vector topic 
-          (bayes/probability topic text)))
+          (bayes/probability topic text @*data*)))
 
 ;; Mongo DB
 
@@ -50,17 +50,16 @@
   [topic text]
   (bayes/probability topic text @*data*))
 
-(defn relevant-topics
-  [text]
-  (->> (bayes/features text)
-       (reduce to-topics {}) 
-       (map (partial to-relevance text))
-       (sort by-value)))
-
 (defn all-topics
   "Returns all current topics (fetched from mongo)"
   []
   (db/distinct "features" "topic"))
+
+(defn relevant-topics
+  [text]
+  (->> (all-topics)
+       (map (partial to-relevance text))
+       (sort by-value)))
 
 (defn reset
   "Resets all scores in mongodb"

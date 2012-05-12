@@ -24,6 +24,13 @@
         [:div.footer "by rod"]]
       (page/include-js "/js/bootstrap.min.js")]])
 
+(defn- max-score [topics]
+  (reduce
+    (fn [acc [_ x]]
+      (if (> x acc) x acc))
+    0
+    topics))
+
 ;; Public
 
 (defn index-page [topics]
@@ -44,17 +51,17 @@
           [:li topic])]]))
 
 (defn relevance-page [text relevant-topics]
-  (layout "Matched Topics"
-    [:p.text-to-score (str "\"" text "\"")]
-    [:ul.topics
-      (for [[topic score] relevant-topics]
-        (let [percentage (int (* 100 score))]
-          [:li
-            [:span.name topic]
-            [:div.score-wrap
-              [:div.score {:style (str "width:" percentage "%")}]
-              [:span percentage "%"]
-              [:div.clearer]]]))]
-      [:div.back
-        [:a.btn.btn-primary {:href "/"} "Back"]]))
+  (let [max (max-score relevant-topics)]
+    (layout "Matched Topics"
+      [:p.text-to-score (str "\"" text "\"")]
+      [:ul.topics
+        (for [[topic score] relevant-topics]
+          (let [percentage (int (* 100 (/ score max)))]
+            [:li
+              [:span.name topic]
+              [:div.score-wrap
+                [:div.score {:style (str "width:" percentage "%")}]
+                [:div.clearer]]]))]
+        [:div.back
+          [:a.btn.btn-primary {:href "/"} "Back"]])))
 
